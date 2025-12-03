@@ -15,7 +15,7 @@
         .page-section.active { display: block; opacity: 1; }
 
         /* =========================================
-           1. 메인 대시보드 스타일 (심플 카드)
+           1. 메인 대시보드 스타일 (심플 카드 - 최종 확정)
            ========================================= */
         .dashboard-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         
@@ -47,7 +47,7 @@
         .bar-red { background-color: #ef4444; }
 
         /* =========================================
-           2. 상세 화면 스타일 (이미지 완벽 재현)
+           2. 상세 화면 스타일 (이미지 완벽 재현 - 최종 확정)
            ========================================= */
         .boiler-container {
             background: white;
@@ -139,6 +139,43 @@
         .badge { background: #e2e8f0; color: #64748b; padding: 2px 6px; border-radius: 99px; font-size: 10px; }
         .badge.active { background: #ef4444; color: white; }
 
+        /* =========================================
+           3. [신규] 특이사항 메모장 스타일 (기존 테마 유지)
+           ========================================= */
+        .memo-container {
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 16px; /* 메인 카드와 동일한 라운드 */
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+        .memo-input {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 14px;
+            resize: none;
+            height: 80px;
+            background-color: #f8fafc;
+            transition: all 0.2s;
+        }
+        .memo-input:focus { outline: none; border-color: #3b82f6; background-color: white; }
+        .memo-btn {
+            margin-top: 10px;
+            width: 100%;
+            background-color: #334155; /* Slate-700 */
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .memo-btn:active { transform: scale(0.98); }
+        .memo-btn:hover { background-color: #1e293b; }
+
     </style>
 </head>
 <body class="max-w-md mx-auto min-h-screen flex flex-col">
@@ -169,8 +206,8 @@
         </div>
     </div>
 
-    <!-- ================= PAGE 2: 상세 화면 (이미지 스타일) ================= -->
-    <div id="page-detail" class="page-section p-4 h-screen flex flex-col">
+    <!-- ================= PAGE 2: 상세 화면 ================= -->
+    <div id="page-detail" class="page-section p-4 h-screen flex flex-col pb-10 overflow-y-auto">
         <!-- 상단 네비게이션 -->
         <div class="flex justify-between items-center mb-6 px-2">
             <button onclick="goHome()" class="flex items-center text-slate-500 hover:text-slate-800 font-bold text-sm transition-colors">
@@ -186,7 +223,7 @@
         </div>
 
         <!-- 메인 보일러 컨테이너 -->
-        <div class="flex-1 flex items-center justify-center pb-20">
+        <div class="flex-none flex items-center justify-center">
             <div class="boiler-container w-full">
                 <!-- 배경 코너 숫자 -->
                 <div class="corner-number cn-1">1</div>
@@ -213,6 +250,18 @@
                 </div>
             </div>
         </div>
+
+        <!-- ★★★ [신규] 특이사항 메모장 추가 (디자인 유지) ★★★ -->
+        <div class="memo-container">
+            <h3 class="text-sm font-bold text-slate-600 mb-2 flex items-center">
+                <span class="mr-2">📝</span> 현장 특이사항 / 피드백 메모
+            </h3>
+            <textarea id="memoInput" class="memo-input" placeholder="예) 3번 기기 소음 발생, 비계 설치 필요 등 특이사항을 입력하세요."></textarea>
+            <button onclick="submitMemo()" class="memo-btn">메모 저장하기</button>
+        </div>
+        
+        <!-- 하단 여백 -->
+        <div class="h-10"></div>
     </div>
 
     <!-- ================= 작업 입력 모달 ================= -->
@@ -343,6 +392,9 @@
             const section = SECTIONS.find(s => s.id === sectionId);
             const group = section.groups[groupIdx];
             
+            // ★★★ [중요] 특이사항 메모를 위해 현재 그룹 정보 저장 ★★★
+            currentSelection.group = group.name;
+
             document.getElementById('detail-title').textContent = group.name;
             document.getElementById('detail-desc').textContent = group.desc;
             
@@ -367,10 +419,9 @@
                 btn.innerHTML = content;
                 btn.onclick = () => openModal(group.name, device.no);
 
-                // 내부 기기 처리 (ECO 등) - 중앙 박스 하단에 추가
+                // 내부 기기 처리
                 if (device.pos === 'inner') {
-                    // 이번 버전에서는 inner 기기 디자인을 위해 중앙 박스 내부에 별도 영역이 필요할 수 있음
-                    // (현재는 중앙박스에 리스트가 들어가므로, 리스트 하단이나 별도 처리가 필요하지만 요청사항엔 없어서 생략)
+                    // (생략)
                 } else {
                     document.getElementById(`area-${device.pos}`).appendChild(btn);
                 }
@@ -427,7 +478,9 @@
         // 모달 및 페이지 제어
         function goHome() { 
             document.getElementById('page-detail').classList.remove('active'); 
-            document.getElementById('page-dashboard').classList.add('active'); 
+            document.getElementById('page-dashboard').classList.add('active');
+            // 메모 입력창 초기화
+            document.getElementById('memoInput').value = '';
         }
         function openModal(g, d) { 
             currentSelection = { group: g, deviceNo: d };
@@ -460,6 +513,39 @@
             }).catch(() => {
                 loading.classList.add('hidden'); loading.classList.remove('flex');
                 alert("전송 실패");
+            });
+        }
+
+        // ★★★ [신규] 특이사항 메모 저장 함수 ★★★
+        function submitMemo() {
+            const memoText = document.getElementById('memoInput').value;
+            if(!memoText.trim()) {
+                alert("내용을 입력해주세요.");
+                return;
+            }
+            if(!currentSelection.group) {
+                alert("그룹 정보가 없습니다. 다시 시도해주세요.");
+                return;
+            }
+            
+            const loading = document.getElementById('loadingOverlay');
+            loading.classList.remove('hidden'); loading.classList.add('flex');
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST", mode: "no-cors",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    group: currentSelection.group, 
+                    deviceNo: 'NOTE',  // 특이사항은 기기번호 대신 'NOTE'로 저장
+                    action: memoText   // 내용은 action 필드에 저장
+                })
+            }).then(() => {
+                loading.classList.add('hidden'); loading.classList.remove('flex');
+                alert("특이사항이 저장되었습니다.");
+                document.getElementById('memoInput').value = ''; // 입력창 비우기
+            }).catch(() => {
+                loading.classList.add('hidden'); loading.classList.remove('flex');
+                alert("저장 실패");
             });
         }
 
