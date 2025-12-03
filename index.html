@@ -119,7 +119,7 @@
         <div id="detail-container" class="flex-1 flex flex-col justify-center pb-10"></div>
     </div>
 
-    <!-- 입력 모달 -->
+    <!-- 입력 모달 (수정된 항목 6개) -->
     <div id="actionModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden transform scale-100 border border-gray-200">
             <div class="p-4 bg-gray-800 text-white">
@@ -129,15 +129,12 @@
                 </div>
             </div>
             <div class="p-4 grid grid-cols-2 gap-3">
-                <button onclick="submitAction('케이블 교체', 'F')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">🔌 케이블 교체</button>
-                <button onclick="submitAction('패킹 교체', 'Le')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">🔧 패킹 교체</button>
-                <button onclick="submitAction('리미트 조정', 'L')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">⚡ 리미트 조정</button>
-                <button onclick="submitAction('오일 보충', 'P')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">💧 오일 보충</button>
-                <button onclick="submitAction('작동 점검', 'Pa')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">✅ 작동 점검</button>
-                <button onclick="submitAction('Poppet V/V', 'Le')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">🔩 Poppet 정비</button>
-                <button onclick="submitAction('Gear Box', 'F')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">⚙️ 기어박스</button>
-                <button onclick="submitAction('Lance Tube', 'F')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">📏 란스 튜브</button>
-                <button onclick="submitAction('기타 정비', 'F')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700 col-span-2">📝 기타 정비 입력</button>
+                <button onclick="submitAction('케이블 교체')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">1. 케이블 교체</button>
+                <button onclick="submitAction('전동기 소손')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">2. 전동기 소손</button>
+                <button onclick="submitAction('전동기 베어링 교체')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">3. 베어링 교체</button>
+                <button onclick="submitAction('전동기 역상')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">4. 전동기 역상</button>
+                <button onclick="submitAction('리미트 조정 [회로]')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">5. 리미트 조정 [회로]</button>
+                <button onclick="submitAction('기계적 고착 [기계]')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">6. 기계적 고착 [기계]</button>
             </div>
             <div class="bg-gray-50 p-3 text-right border-t"><button onclick="closeModal('actionModal')" class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded font-bold text-sm">닫기</button></div>
         </div>
@@ -173,23 +170,26 @@
         // ★★★★★ [필수] 복사한 앱스 스크립트 배포 URL을 아래 따옴표 안에 넣으세요 ★★★★★
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwyJgKM4gfPmd3qHx7XuuazUENcOKMvQ_oBZ_6HpVOzV1WeHYMjbglkxSQ_pMB2BRno/exec";
 
-        // 분류 카테고리 정의
+        // ★★★ [수정] 현장 요청 정비 항목 6가지 정의 ★★★
+        // code는 내부 식별용, label은 화면 표시용
         const STATUS_CATEGORIES = [
-            { code: 'F', label: 'Forward Fault', name: 'Forward Fault' },
-            { code: 'P', label: 'Protection', name: 'Protection' },
-            { code: 'L', label: 'Limit', name: 'Limit' },
-            { code: 'Le', label: 'Leak (기계)', name: 'Leak' },
-            { code: 'Pa', label: 'Passing (기계)', name: 'Passing' }
+            { code: 'C', label: '케이블 교체', name: '케이블 교체' },
+            { code: 'MB', label: '전동기 소손', name: '전동기 소손' },
+            { code: 'BR', label: '전동기 베어링 교체', name: '베어링 교체' },
+            { code: 'RP', label: '전동기 역상', name: '전동기 역상' },
+            { code: 'LA', label: '리미트 조정 [회로]', name: '리미트 조정 [회로]' },
+            { code: 'MS', label: '기계적 고착 [기계]', name: '기계적 고착 [기계]' }
         ];
 
-        // 입력 버튼과 카테고리 매핑 (자동 분류용)
+        // ★★★ [수정] 버튼 입력 텍스트를 카테고리 코드로 변환하는 함수 ★★★
         function getCategoryByAction(actionName) {
-            if (actionName.includes('케이블') || actionName.includes('Gear') || actionName.includes('Lance') || actionName.includes('기타')) return 'F';
-            if (actionName.includes('오일')) return 'P';
-            if (actionName.includes('리미트')) return 'L';
-            if (actionName.includes('패킹') || actionName.includes('Poppet')) return 'Le';
-            if (actionName.includes('작동')) return 'Pa';
-            return 'F';
+            if (actionName === '케이블 교체') return 'C';
+            if (actionName === '전동기 소손') return 'MB';
+            if (actionName === '전동기 베어링 교체') return 'BR';
+            if (actionName === '전동기 역상') return 'RP';
+            if (actionName === '리미트 조정 [회로]') return 'LA';
+            if (actionName === '기계적 고착 [기계]') return 'MS';
+            return 'ETC'; // 기타
         }
 
         // ★★★ 데이터 설정 (모든 층별 수정 완료) ★★★
@@ -313,16 +313,20 @@
 
         // 중앙 현황판 업데이트
         function updateCenterStatus(containerEl, data) {
-            const counts = { 'F':0, 'P':0, 'L':0, 'Le':0, 'Pa':0 };
+            // 카운트 초기화
+            const counts = {};
+            STATUS_CATEGORIES.forEach(cat => counts[cat.code] = 0);
+
             data.forEach(item => {
-                const cat = getCategoryByAction(item.action);
-                if (counts[cat] !== undefined) counts[cat]++;
+                const catCode = getCategoryByAction(item.action);
+                if (counts[catCode] !== undefined) counts[catCode]++;
             });
+
             let html = `<div class="status-header">정비 현황</div><div class="status-list">`;
             STATUS_CATEGORIES.forEach((cat, idx) => {
                 const count = counts[cat.code] || 0;
                 const activeClass = count > 0 ? 'active-cnt' : '';
-                html += `<div class="status-item ${activeClass}" onclick="openHistoryModal('${cat.code}')"><span>${idx+1}. ${cat.code}-${cat.name}</span><span class="count-badge">${count}건</span></div>`;
+                html += `<div class="status-item ${activeClass}" onclick="openHistoryModal('${cat.code}')"><span>${idx+1}. ${cat.name}</span><span class="count-badge">${count}건</span></div>`;
             });
             html += `</div>`;
             containerEl.innerHTML = html;
@@ -331,7 +335,7 @@
         // 이력 모달
         function openHistoryModal(categoryCode) {
             const catInfo = STATUS_CATEGORIES.find(c => c.code === categoryCode);
-            document.getElementById('historyTitle').textContent = `${catInfo.label} 이력`;
+            document.getElementById('historyTitle').textContent = `${catInfo.name} 이력`;
             const listBody = document.getElementById('historyListBody');
             const noMsg = document.getElementById('noHistoryMsg');
             listBody.innerHTML = '';
@@ -353,7 +357,7 @@
         function openModal(g, d) { currentSelection = { group: g, deviceNo: d }; document.getElementById('modalTitle').textContent = `No. ${d}`; document.getElementById('modalSubtitle').textContent = g; document.getElementById('actionModal').classList.remove('hidden'); document.getElementById('actionModal').classList.add('flex'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
         
-        function submitAction(action, cat) {
+        function submitAction(action) {
             if(!currentSelection.group) return;
             const loading = document.getElementById('loadingOverlay');
             loading.classList.remove('hidden'); loading.classList.add('flex');
