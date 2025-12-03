@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soot Blower 정비 시스템</title>
+    <!-- Tailwind CSS (스타일링 유틸리티) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background-color: #f3f4f6; }
+        
+        /* 화면 전환 애니메이션 */
+        .page-section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 대시보드 리스트 버튼 */
+        .dashboard-btn { @apply w-full bg-white p-5 rounded-xl shadow-sm border-l-4 mb-3 flex justify-between items-center transition-all cursor-pointer hover:shadow-md hover:bg-gray-50; }
+        .dashboard-btn.blue { border-left-color: #2563eb; }
+        .dashboard-btn.red { border-left-color: #dc2626; }
+
+        /* 보일러 그리드 레이아웃 (공간 확보) */
+        .boiler-grid {
+            display: grid;
+            grid-template-columns: 90px 1fr 90px; /* 좌우 너비 넉넉하게 */
+            grid-template-rows: 90px 1fr 90px;    /* 상하 높이 넉넉하게 */
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            position: relative;
+            min-height: 550px;
+        }
+        .area-top { grid-column: 2 / 3; grid-row: 1 / 2; }
+        .area-bottom { grid-column: 2 / 3; grid-row: 3 / 4; }
+        .area-left { grid-column: 1 / 2; grid-row: 2 / 3; }
+        .area-right { grid-column: 3 / 4; grid-row: 2 / 3; }
+        .area-center { grid-column: 2 / 3; grid-row: 2 / 3; }
+
+        .device-container { display: flex; justify-content: space-evenly; align-items: center; height: 100%; width: 100%; }
+        /* 위치별 정렬 방향 */
+        .area-top.device-container { flex-direction: row; align-items: flex-end; padding-bottom: 5px; }
+        .area-bottom.device-container { flex-direction: row; align-items: flex-start; padding-top: 5px; }
+        .area-left.device-container { flex-direction: column; align-items: flex-end; padding-right: 5px; }
+        .area-right.device-container { flex-direction: column; align-items: flex-start; padding-left: 5px; }
+
+        /* 기기 버튼 스타일 (사각 박스) */
+        .btn-device {
+            width: 46px; height: 46px; /* 크기 약간 확대 */
+            background-color: white; border: 2px solid #374151; color: #111827;
+            font-weight: 800; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.15s; z-index: 10; margin: 2px;
+            border-radius: 6px; line-height: 1; overflow: hidden;
+        }
+        .btn-device:active { transform: scale(0.95); background-color: #e5e7eb; }
+        .btn-device:hover { border-color: #2563eb; color: #2563eb; background-color: #eff6ff; transform: scale(1.1); }
+        /* NS/NL 라벨 스타일 */
+        .ns-label { font-size: 10px; font-weight: 600; margin-bottom: -2px; color: #4b5563; }
+        .ns-number { font-size: 15px; font-weight: 900; }
+
+        /* 코너 가이드 (배경 숫자) */
+        .corner-guide { position: absolute; font-weight: 900; font-size: 2.5rem; color: #ef4444; opacity: 0.1; pointer-events: none; z-index: 0; }
+        .cg-1 { bottom: 10px; left: 15px; } .cg-2 { top: 10px; left: 15px; } .cg-3 { top: 10px; right: 15px; } .cg-4 { bottom: 10px; right: 15px; }
+
+        /* 중앙 정보 박스 (현황판) */
+        .center-box {
+            display: flex; flex-direction: column; 
+            border: 2px dashed #9ca3af; border-radius: 10px;
+            width: 100%; height: 100%;
+            background-color: #f9fafb;
+            padding: 8px; box-sizing: border-box; overflow: hidden;
+        }
+        .status-header { font-size: 12px; font-weight: bold; color: #6b7280; text-align: center; margin-bottom: 5px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+        .status-list { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
+        .status-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: white; padding: 8px 10px; border-radius: 6px; border: 1px solid #e5e7eb;
+            font-size: 12px; font-weight: 600; color: #374151; cursor: pointer; transition: background 0.2s;
+        }
+        .status-item:hover { background-color: #eff6ff; border-color: #bfdbfe; }
+        .count-badge { background-color: #e5e7eb; color: #374151; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 800; }
+        .status-item.active-cnt .count-badge { background-color: #ef4444; color: white; }
+
+        /* 히스토리 모달 테이블 */
+        .history-table { width: 100%; font-size: 12px; text-align: left; }
+        .history-table th { background-color: #f3f4f6; padding: 8px; font-weight: bold; color: #4b5563; }
+        .history-table td { border-bottom: 1px solid #e5e7eb; padding: 8px; color: #1f2937; }
+        .history-table tr:last-child td { border-bottom: none; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- PAGE 1: 메인 목록 -->
+    <div id="page-dashboard" class="page-section active p-4 max-w-md mx-auto">
+        <header class="mb-6 mt-4 text-center">
+            <h1 class="text-2xl font-bold text-gray-800">Soot Blower 관리</h1>
+            <p class="text-gray-500 text-sm">작업할 구역(Group)을 선택하세요</p>
+        </header>
+        <div class="mb-8">
+            <h2 class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-3 pl-1 border-b border-blue-200 pb-1">Short Soot Blower (G1 ~ G4.5)</h2>
+            <div id="list-short"></div>
+        </div>
+        <div>
+            <h2 class="text-xs font-bold text-red-600 uppercase tracking-wider mb-3 pl-1 border-b border-red-200 pb-1">Long Soot Blower (G5 ~ G9)</h2>
+            <div id="list-long"></div>
+        </div>
+    </div>
+
+    <!-- PAGE 2: 상세 배치도 -->
+    <div id="page-detail" class="page-section p-2 max-w-xl mx-auto h-screen flex flex-col">
+        <div class="bg-white p-3 rounded-xl shadow-sm mb-4 flex items-center justify-between sticky top-2 z-20">
+            <button onclick="goHome()" class="flex items-center text-gray-600 font-bold hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors">◀ 뒤로가기</button>
+            <div class="text-right">
+                <h2 id="detail-title" class="font-bold text-lg text-gray-800">GROUP 1</h2>
+                <p id="detail-desc" class="text-xs text-gray-500">7F Bottom Area</p>
+            </div>
+        </div>
+        <div id="detail-container" class="flex-1 flex flex-col justify-center pb-10"></div>
+    </div>
+
+    <!-- 입력 모달 -->
+    <div id="actionModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden transform scale-100 border border-gray-200">
+            <div class="p-4 bg-gray-800 text-white">
+                <div class="flex justify-between items-center">
+                    <div><h3 class="font-bold text-xl" id="modalTitle">No. 88</h3><p class="text-gray-300 text-sm" id="modalSubtitle">Group 6</p></div>
+                    <div class="bg-white text-gray-800 rounded px-2 py-1 text-xs font-bold">선택됨</div>
+                </div>
+            </div>
+            <div class="p-4 grid grid-cols-2 gap-3">
+                <button onclick="submitAction('케이블 교체', 'F')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">🔌 케이블 교체</button>
+                <button onclick="submitAction('패킹 교체', 'Le')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">🔧 패킹 교체</button>
+                <button onclick="submitAction('리미트 조정', 'L')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">⚡ 리미트 조정</button>
+                <button onclick="submitAction('오일 보충', 'P')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">💧 오일 보충</button>
+                <button onclick="submitAction('작동 점검', 'Pa')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">✅ 작동 점검</button>
+                <button onclick="submitAction('Poppet V/V', 'Le')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">🔩 Poppet 정비</button>
+                <button onclick="submitAction('Gear Box', 'F')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">⚙️ 기어박스</button>
+                <button onclick="submitAction('Lance Tube', 'F')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700">📏 란스 튜브</button>
+                <button onclick="submitAction('기타 정비', 'F')" class="p-3 border-2 rounded-lg hover:border-blue-500 hover:bg-blue-50 font-bold text-gray-700 col-span-2">📝 기타 정비 입력</button>
+            </div>
+            <div class="bg-gray-50 p-3 text-right border-t"><button onclick="closeModal('actionModal')" class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded font-bold text-sm">닫기</button></div>
+        </div>
+    </div>
+
+    <!-- 상세 이력 모달 -->
+    <div id="historyModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-[60] p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col max-h-[80vh]">
+            <div class="p-4 bg-blue-600 text-white flex justify-between items-center">
+                <h3 class="font-bold text-lg" id="historyTitle">정비 이력</h3>
+                <button onclick="closeModal('historyModal')" class="text-white text-2xl font-bold">&times;</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-0">
+                <table class="history-table">
+                    <thead><tr><th>날짜</th><th>기기</th><th>내용</th></tr></thead>
+                    <tbody id="historyListBody"></tbody>
+                </table>
+                <div id="noHistoryMsg" class="hidden p-8 text-center text-gray-500 text-sm">이력이 없습니다.</div>
+            </div>
+            <div class="bg-gray-50 p-3 text-right border-t"><button onclick="closeModal('historyModal')" class="px-4 py-2 bg-gray-200 text-gray-800 rounded font-bold text-sm">닫기</button></div>
+        </div>
+    </div>
+
+    <!-- 로딩 -->
+    <div id="loadingOverlay" class="fixed inset-0 hidden items-center justify-center z-[70] bg-black bg-opacity-40">
+        <div class="bg-white px-8 py-5 rounded-xl shadow-2xl flex flex-col items-center">
+            <div class="animate-spin text-4xl mb-2">⏳</div>
+            <span class="font-bold text-gray-800">처리 중...</span>
+        </div>
+    </div>
+
+    <script>
+        // ★★★★★ [필수] 복사한 앱스 스크립트 배포 URL을 아래 따옴표 안에 넣으세요 ★★★★★
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwyJgKM4gfPmd3qHx7XuuazUENcOKMvQ_oBZ_6HpVOzV1WeHYMjbglkxSQ_pMB2BRno/exec";
+
+        // 분류 카테고리 정의
+        const STATUS_CATEGORIES = [
+            { code: 'F', label: 'Forward Fault', name: 'Forward Fault' },
+            { code: 'P', label: 'Protection', name: 'Protection' },
+            { code: 'L', label: 'Limit', name: 'Limit' },
+            { code: 'Le', label: 'Leak (기계)', name: 'Leak' },
+            { code: 'Pa', label: 'Passing (기계)', name: 'Passing' }
+        ];
+
+        // 입력 버튼과 카테고리 매핑 (자동 분류용)
+        function getCategoryByAction(actionName) {
+            if (actionName.includes('케이블') || actionName.includes('Gear') || actionName.includes('Lance') || actionName.includes('기타')) return 'F';
+            if (actionName.includes('오일')) return 'P';
+            if (actionName.includes('리미트')) return 'L';
+            if (actionName.includes('패킹') || actionName.includes('Poppet')) return 'Le';
+            if (actionName.includes('작동')) return 'Pa';
+            return 'F';
+        }
+
+        // ★★★ 데이터 설정 (모든 층별 수정 완료) ★★★
+        const SECTIONS = [
+            { id: "short", title: "Short SB", theme: "theme-short", color: "bg-blue-600", groups: [
+                { name: "GROUP 1 (7F)", desc: "Bottom Area", devices: [{no:3,pos:'left'},{no:2,pos:'left'},{no:1,pos:'left'},{no:10,pos:'top'},{no:11,pos:'top'},{no:12,pos:'top'},{no:9,pos:'right'},{no:8,pos:'right'},{no:7,pos:'right'},{no:6,pos:'bottom'},{no:5,pos:'bottom'},{no:4,pos:'bottom'}] },
+                { name: "GROUP 2 (7.5F)", desc: "Lower Area", devices: [{no:13,pos:'left'},{no:14,pos:'left'},{no:15,pos:'left'},{no:16,pos:'left'},{no:17,pos:'left'},{no:32,pos:'top'},{no:31,pos:'top'},{no:30,pos:'top'},{no:29,pos:'top'},{no:28,pos:'top'},{no:23,pos:'right'},{no:24,pos:'right'},{no:25,pos:'right'},{no:26,pos:'right'},{no:27,pos:'right'},{no:18,pos:'bottom'},{no:19,pos:'bottom'},{no:20,pos:'bottom'},{no:21,pos:'bottom'},{no:22,pos:'bottom'}] },
+                { name: "GROUP 3 (8F)", desc: "Middle Area", devices: [{no:37,pos:'left'},{no:36,pos:'left'},{no:35,pos:'left'},{no:34,pos:'left'},{no:33,pos:'left'},{no:48,pos:'top'},{no:49,pos:'top'},{no:50,pos:'top'},{no:51,pos:'top'},{no:52,pos:'top'},{no:47,pos:'right'},{no:46,pos:'right'},{no:45,pos:'right'},{no:44,pos:'right'},{no:43,pos:'right'},{no:42,pos:'bottom'},{no:41,pos:'bottom'},{no:40,pos:'bottom'},{no:39,pos:'bottom'},{no:38,pos:'bottom'}] },
+                { name: "GROUP 4 (8.5F)", desc: "Upper Area", devices: [{no:53,pos:'left'},{no:54,pos:'left'},{no:55,pos:'left'},{no:56,pos:'left'},{no:57,pos:'left'},{no:72,pos:'top'},{no:71,pos:'top'},{no:70,pos:'top'},{no:69,pos:'top'},{no:68,pos:'top'},{no:63,pos:'right'},{no:64,pos:'right'},{no:65,pos:'right'},{no:66,pos:'right'},{no:67,pos:'right'},{no:58,pos:'bottom'},{no:59,pos:'bottom'},{no:60,pos:'bottom'},{no:61,pos:'bottom'},{no:62,pos:'bottom'}] },
+                { name: "GROUP 4.5 (9F)", desc: "NS Series", devices: [{no:'NS1',pos:'left'},{no:'NS2',pos:'left'},{no:'NS3',pos:'left'},{no:'NS4',pos:'left'},{no:'NS20',pos:'top'},{no:'NS19',pos:'top'},{no:'NS18',pos:'top'},{no:'NS17',pos:'top'},{no:'NS16',pos:'top'},{no:'NS14',pos:'right'},{no:'NS13',pos:'right'},{no:'NS12',pos:'right'},{no:'NS11',pos:'right'},{no:'NS6',pos:'bottom'},{no:'NS7',pos:'bottom'},{no:'NS8',pos:'bottom'},{no:'NS9',pos:'bottom'},{no:'NS10',pos:'bottom'}] }
+            ]},
+            { id: "long", title: "Long SB", theme: "theme-long", color: "bg-red-600", groups: [
+                { name: "GROUP 5 (10F)", desc: "Middle Section 1", devices: [{no:74,pos:'left'},{no:128,pos:'left'},{no:76,pos:'left'},{no:124,pos:'left'},{no:78,pos:'left'},{no:73,pos:'right'},{no:127,pos:'right'},{no:75,pos:'right'},{no:123,pos:'right'},{no:77,pos:'right'}] },
+                { name: "GROUP 5.5 (10.5F)", desc: "Middle Section 2", devices: [{no:86,pos:'left'},{no:84,pos:'left'},{no:'NL2',pos:'left'},{no:82,pos:'left'},{no:80,pos:'left'},{no:85,pos:'right'},{no:83,pos:'right'},{no:'NL1',pos:'right'},{no:81,pos:'right'},{no:79,pos:'right'}] },
+                { name: "GROUP 6 (11F)", desc: "Upper Middle", devices: [{no:88,pos:'left'},{no:90,pos:'left'},{no:92,pos:'left'},{no:94,pos:'left'},{no:96,pos:'left'},{no:87,pos:'right'},{no:89,pos:'right'},{no:91,pos:'right'},{no:93,pos:'right'},{no:95,pos:'right'}] },
+                { name: "GROUP 7 (12F)", desc: "Upper Section", devices: [{no:104,pos:'left'},{no:102,pos:'left'},{no:'NL4',pos:'left'},{no:100,pos:'left'},{no:98,pos:'left'},{no:103,pos:'right'},{no:101,pos:'right'},{no:'NL3',pos:'right'},{no:99,pos:'right'},{no:97,pos:'right'}] },
+                { name: "GROUP 8 (13F)", desc: "High Section 1", devices: [{no:106,pos:'left'},{no:108,pos:'left'},{no:110,pos:'left'},{no:112,pos:'left'},{no:'NL6',pos:'left'},{no:105,pos:'right'},{no:107,pos:'right'},{no:109,pos:'right'},{no:111,pos:'right'},{no:'NL5',pos:'right'}] },
+                { name: "GROUP 8.5 (14F)", desc: "High Section 2", devices: [{no:122,pos:'left'},{no:120,pos:'left'},{no:118,pos:'left'},{no:116,pos:'left'},{no:114,pos:'left'},{no:121,pos:'right'},{no:119,pos:'right'},{no:117,pos:'right'},{no:115,pos:'right'},{no:113,pos:'right'}] },
+                { name: "GROUP 9 (ECO - 12F)", desc: "Economizer Lower", devices: [{no:130,pos:'left'},{no:132,pos:'left'},{no:134,pos:'left'},{no:129,pos:'right'},{no:131,pos:'right'},{no:133,pos:'right'}] },
+                { name: "GROUP 9.5 (ECO - 13F)", desc: "Economizer Upper", devices: [{no:'NL8',pos:'left'},{no:126,pos:'left'},{no:'NL10',pos:'left'},{no:'NL7',pos:'right'},{no:125,pos:'right'},{no:'NL9',pos:'right'}] }
+            ]}
+        ];
+
+        let currentSelection = { group: null, deviceNo: null };
+        let currentGroupData = [];
+
+        function initDashboard() {
+            SECTIONS.forEach(section => {
+                const listEl = document.getElementById(section.id === 'short' ? 'list-short' : 'list-long');
+                section.groups.forEach((group, idx) => {
+                    const btn = document.createElement('div');
+                    const colorClass = section.id === 'short' ? 'blue' : 'red';
+                    const textColor = section.id === 'short' ? 'text-blue-600' : 'text-red-600';
+                    btn.className = `dashboard-btn ${colorClass}`;
+                    btn.innerHTML = `<div><div class="font-bold text-lg text-gray-800">${group.name}</div><div class="text-xs text-gray-400">${group.desc}</div></div><div class="${textColor} font-bold text-2xl">➔</div>`;
+                    btn.onclick = () => showDetail(section.id, idx);
+                    listEl.appendChild(btn);
+                });
+            });
+        }
+
+        function showDetail(sectionId, groupIdx) {
+            const section = SECTIONS.find(s => s.id === sectionId);
+            const group = section.groups[groupIdx];
+            
+            document.getElementById('detail-title').textContent = group.name;
+            document.getElementById('detail-desc').textContent = group.desc;
+            const container = document.getElementById('detail-container');
+            container.innerHTML = '';
+
+            const boilerGrid = document.createElement('div');
+            boilerGrid.className = `boiler-grid`;
+            // 코너 가이드 (1~4번)
+            boilerGrid.innerHTML = `<span class="corner-guide cg-1">1</span><span class="corner-guide cg-2">2</span><span class="corner-guide cg-3">3</span><span class="corner-guide cg-4">4</span>`;
+
+            // ★ 중앙 정보 박스 (현황판) ★
+            const centerInfo = document.createElement('div');
+            centerInfo.className = "area-center center-box";
+            centerInfo.innerHTML = `<div class="flex items-center justify-center h-full text-gray-400 text-xs"><div class="animate-spin mr-2">⏳</div>불러오는 중...</div>`;
+            boilerGrid.appendChild(centerInfo);
+
+            // 데이터 로드
+            fetchGroupData(group.name, centerInfo);
+
+            // 구역 생성
+            const areas = {};
+            ['top','bottom','left','right'].forEach(pos => {
+                const div = document.createElement('div');
+                div.className = `area-${pos} device-container`;
+                boilerGrid.appendChild(div);
+                areas[pos] = div;
+            });
+
+            // 기기 버튼 생성
+            let innerContainer = null;
+            group.devices.forEach(device => {
+                const btn = document.createElement('button');
+                btn.className = `btn-device`;
+                let content = '';
+                const strNo = String(device.no);
+                if (strNo.startsWith('NS') || strNo.startsWith('NL')) {
+                    const type = strNo.substring(0,2); const num = strNo.substring(2);
+                    content = `<span class="ns-label">${type}</span><span class="ns-number">${num}</span>`;
+                } else { content = `<span class="text-lg">${strNo}</span>`; }
+                btn.innerHTML = content;
+                btn.onclick = () => openModal(group.name, device.no);
+
+                if (device.pos === 'inner') {
+                    if (!innerContainer) {
+                        innerContainer = document.createElement('div');
+                        innerContainer.className = "flex flex-wrap justify-center gap-2 mt-2";
+                        centerInfo.appendChild(innerContainer);
+                    }
+                    innerContainer.appendChild(btn);
+                } else if (areas[device.pos]) areas[device.pos].appendChild(btn);
+            });
+
+            container.appendChild(boilerGrid);
+            document.getElementById('page-dashboard').classList.remove('active');
+            document.getElementById('page-detail').classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        // 데이터 가져오기
+        function fetchGroupData(groupName, containerEl) {
+            if(GOOGLE_SCRIPT_URL.includes("여기에")) {
+                containerEl.innerHTML = `<div class="text-center text-xs text-red-500">URL 미설정<br>데이터 로드 불가</div>`;
+                return;
+            }
+            fetch(`${GOOGLE_SCRIPT_URL}?group=${encodeURIComponent(groupName)}`)
+                .then(res => res.json())
+                .then(data => {
+                    currentGroupData = data;
+                    updateCenterStatus(containerEl, data);
+                })
+                .catch(err => {
+                    console.error(err);
+                    containerEl.innerHTML = `<div class="text-center text-xs text-gray-400">데이터 없음<br>(로드 실패)</div>`;
+                });
+        }
+
+        // 중앙 현황판 업데이트
+        function updateCenterStatus(containerEl, data) {
+            const counts = { 'F':0, 'P':0, 'L':0, 'Le':0, 'Pa':0 };
+            data.forEach(item => {
+                const cat = getCategoryByAction(item.action);
+                if (counts[cat] !== undefined) counts[cat]++;
+            });
+            let html = `<div class="status-header">정비 현황</div><div class="status-list">`;
+            STATUS_CATEGORIES.forEach((cat, idx) => {
+                const count = counts[cat.code] || 0;
+                const activeClass = count > 0 ? 'active-cnt' : '';
+                html += `<div class="status-item ${activeClass}" onclick="openHistoryModal('${cat.code}')"><span>${idx+1}. ${cat.code}-${cat.name}</span><span class="count-badge">${count}건</span></div>`;
+            });
+            html += `</div>`;
+            containerEl.innerHTML = html;
+        }
+
+        // 이력 모달
+        function openHistoryModal(categoryCode) {
+            const catInfo = STATUS_CATEGORIES.find(c => c.code === categoryCode);
+            document.getElementById('historyTitle').textContent = `${catInfo.label} 이력`;
+            const listBody = document.getElementById('historyListBody');
+            const noMsg = document.getElementById('noHistoryMsg');
+            listBody.innerHTML = '';
+            const filtered = currentGroupData.filter(item => getCategoryByAction(item.action) === categoryCode);
+            if (filtered.length === 0) { noMsg.classList.remove('hidden'); } 
+            else {
+                noMsg.classList.add('hidden');
+                filtered.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${item.date.substring(5)}</td><td>No.${item.device}</td><td>${item.action}</td>`;
+                    listBody.appendChild(row);
+                });
+            }
+            document.getElementById('historyModal').classList.remove('hidden');
+            document.getElementById('historyModal').classList.add('flex');
+        }
+
+        function goHome() { document.getElementById('page-detail').classList.remove('active'); document.getElementById('page-dashboard').classList.add('active'); }
+        function openModal(g, d) { currentSelection = { group: g, deviceNo: d }; document.getElementById('modalTitle').textContent = `No. ${d}`; document.getElementById('modalSubtitle').textContent = g; document.getElementById('actionModal').classList.remove('hidden'); document.getElementById('actionModal').classList.add('flex'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
+        
+        function submitAction(action, cat) {
+            if(!currentSelection.group) return;
+            const loading = document.getElementById('loadingOverlay');
+            loading.classList.remove('hidden'); loading.classList.add('flex');
+            closeModal('actionModal');
+            
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST", mode: "no-cors",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({group: currentSelection.group, deviceNo: currentSelection.deviceNo, action: action})
+            }).then(() => {
+                loading.classList.add('hidden'); loading.classList.remove('flex');
+                alert(`[${currentSelection.deviceNo} - ${action}] 저장 완료!`);
+                const centerBox = document.querySelector('.center-box');
+                if(centerBox) fetchGroupData(currentSelection.group, centerBox);
+            }).catch(() => {
+                loading.classList.add('hidden'); loading.classList.remove('flex');
+                alert("전송 실패");
+            });
+        }
+
+        initDashboard();
+    </script>
+</body>
+</html>
