@@ -15,14 +15,14 @@
         .page-section.active { display: block; opacity: 1; }
 
         /* =========================================
-           1. 메인 대시보드 스타일 (심플 박스형 - 최종 복구)
+           1. 메인 대시보드 스타일 (심플 박스형)
            ========================================= */
         .dashboard-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         
         .dashboard-card {
             background: white;
             border-radius: 12px;
-            padding: 0; /* 패딩 제거하고 flex로 중앙 정렬 */
+            padding: 0;
             border: 1px solid #e2e8f0;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             transition: all 0.2s;
@@ -33,10 +33,10 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 80px; /* 높이 고정 (심플함 유지) */
+            height: 80px;
         }
         
-        /* 왼쪽 컬러바 (심플 스타일 핵심) */
+        /* 왼쪽 컬러바 */
         .dashboard-card::before {
             content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 6px;
         }
@@ -51,12 +51,12 @@
         .card-title { font-size: 16px; font-weight: 800; color: #1e293b; letter-spacing: -0.5px; }
         .card-desc { font-size: 11px; color: #64748b; margin-top: 2px; }
         
-        /* 호기 선택 버튼용 스타일 (좀 더 크게) */
+        /* 호기 선택 버튼용 스타일 */
         .unit-card { height: 120px; } 
         .unit-title { font-size: 32px; font-weight: 900; color: #1e293b; }
 
         /* =========================================
-           2. 상세 화면 스타일 (기존 유지)
+           2. 상세 화면 스타일
            ========================================= */
         .boiler-container {
             background: white; border-radius: 24px; 
@@ -140,12 +140,11 @@
             padding: 10px;
             justify-content: space-between;
         }
-
     </style>
 </head>
-<body class="max-w-md mx-auto min-h-screen flex flex-col">
+<body class="max-w-md mx-auto min-h-screen flex flex-col pb-6">
 
-    <!-- ================= PAGE 0: 호기 선택 (NEW) ================= -->
+    <!-- ================= PAGE 0: 호기 선택 ================= -->
     <div id="page-unit-selection" class="page-section active p-5">
         <header class="mb-10 mt-8 text-center">
             <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight">Soot Blower <span class="text-blue-600">Manager</span></h1>
@@ -153,20 +152,18 @@
         </header>
 
         <div class="dashboard-grid mb-10">
-            <!-- 호기 선택 버튼 (심플하고 큰 박스) -->
-            <!-- #3 호기: 파란색 포인트 라인 (blue 클래스 사용) -->
+            <!-- 호기 선택 버튼 -->
             <div class="dashboard-card unit-card blue" onclick="selectUnit('UNIT 3')">
                 <div class="unit-title">#3</div>
                 <div class="card-desc">3호기 설비</div>
             </div>
-            <!-- #4 호기: 빨간색 포인트 라인 (red 클래스 사용) -->
             <div class="dashboard-card unit-card red" onclick="selectUnit('UNIT 4')">
                 <div class="unit-title">#4</div>
                 <div class="card-desc">4호기 설비</div>
             </div>
         </div>
         
-        <!-- ================= 전체 작업 현황 대시보드 (NEW) ================= -->
+        <!-- ================= 전체 작업 현황 대시보드 ================= -->
         <div id="total-summary-section" class="mt-4">
             <div class="flex items-center mb-3 pl-1">
                 <div class="w-1 h-3 bg-red-600 rounded-full mr-2"></div>
@@ -182,7 +179,6 @@
                 </div>
             </div>
         </div>
-        <!-- ================= END NEW DASHBOARD ================= -->
     </div>
 
     <!-- ================= PAGE 1: 그룹 선택 ================= -->
@@ -191,7 +187,7 @@
             <button onclick="goUnitSelection()" class="text-slate-400 hover:text-slate-600 font-bold text-xs px-2 py-1 border border-slate-200 rounded">
                 ◀ 호기 변경
             </button>
-            <div class="text-center flex-1 mr-12"> <!-- 중앙 정렬 보정 -->
+            <div class="text-center flex-1 mr-12">
                 <h1 class="text-xl font-extrabold text-slate-800 tracking-tight" id="headerUnitTitle">#3호기</h1>
             </div>
         </header>
@@ -280,9 +276,9 @@
             <div class="p-4 grid grid-cols-1 gap-2">
                 <button onclick="submitAction('케이블 교체')" class="w-full p-3 border rounded-xl hover:bg-blue-50 hover:border-blue-500 hover:text-blue-700 font-bold text-slate-600 text-sm transition-all text-left flex items-center"><span class="w-6 text-center mr-2">🔌</span> 1. 케이블 교체</button>
                 <button onclick="submitAction('전동기 소손')" class="w-full p-3 border rounded-xl hover:bg-red-50 hover:border-red-500 hover:text-red-700 font-bold text-slate-600 text-sm transition-all text-left flex items-center"><span class="w-6 text-center mr-2">🔥</span> 2. 전동기 소손</button>
-                <button onclick="submitAction('전동기 베어링 교체')" class="w-full p-3 border rounded-xl hover:bg-orange-50 hover:border-orange-500 hover:text-orange-700 font-bold text-slate-600 text-sm transition-all text-left flex items-center"><span class="w-6 text-center mr-2"⚙️</span> 3. 베어링 교체</button>
+                <!-- [수정완료] 오타 수정됨: > 추가 -->
+                <button onclick="submitAction('전동기 베어링 교체')" class="w-full p-3 border rounded-xl hover:bg-orange-50 hover:border-orange-500 hover:text-orange-700 font-bold text-slate-600 text-sm transition-all text-left flex items-center"><span class="w-6 text-center mr-2">⚙️</span> 3. 베어링 교체</button>
                 <button onclick="submitAction('전동기 역상')" class="w-full p-3 border rounded-xl hover:bg-yellow-50 hover:border-yellow-500 hover:text-yellow-700 font-bold text-slate-600 text-sm transition-all text-left flex items-center"><span class="w-6 text-center mr-2">⚠️</span> 4. 전동기 역상</button>
-                <!-- 새로운 메뉴 추가 및 기존 메뉴 조정 -->
                 <button onclick="submitAction('리미트 정비 [회로]')" class="w-full p-3 border rounded-xl hover:bg-green-50 hover:border-green-500 hover:text-green-700 font-bold text-slate-600 text-sm transition-all text-left flex items-center"><span class="w-6 text-center mr-2">⚡</span> 5. 리미트 정비 [회로]</button>
                 <button onclick="submitAction('MOV 정비 [회로]')" class="w-full p-3 border rounded-xl hover:bg-green-50 hover:border-green-500 hover:text-green-700 font-bold text-slate-600 text-sm transition-all text-left flex items-center"><span class="w-6 text-center mr-2">🔋</span> 6. MOV 정비 [회로]</button>
                 <button onclick="submitAction('단로기 정비 [회로]')" class="w-full p-3 border rounded-xl hover:bg-green-50 hover:border-green-500 hover:text-green-700 font-bold text-slate-600 text-sm transition-all text-left flex items-center"><span class="w-6 text-center mr-2">💡</span> 7. 단로기 정비 [회로]</button>
@@ -318,7 +314,7 @@
         </div>
     </div>
 
-    <!-- Custom Toast/Alert Message Box (ALERT 대체) -->
+    <!-- Custom Toast/Alert Message Box -->
     <div id="toastMessage" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-4 py-3 rounded-xl shadow-lg font-bold text-sm hidden transition-opacity duration-300 z-[80]"></div>
 
     <script>
@@ -329,9 +325,8 @@
         let currentSelection = { group: null, deviceNo: null };
         let currentGroupData = [];
         let totalCounts = {}; // 전체 요약 건수
-        let totalDataRecords = []; // 전체 데이터 레코드 (FULL ARRAY)
+        let totalDataRecords = []; // 전체 데이터 레코드
         
-        // STATUS_CATEGORIES 업데이트: MOV, 단로기, MC 정비 항목 추가 및 기존 리미트 항목 수정
         const STATUS_CATEGORIES = [
             { code: 'C', label: '케이블 교체' }, 
             { code: 'MB', label: '전동기 소손' }, 
@@ -345,23 +340,26 @@
             { code: 'NOTE', label: '특이사항 메모' } 
         ];
 
+        // 키워드 매칭 로직 (공백 무시)
         function getCategoryByAction(action) {
-            if (action === '케이블 교체') return 'C';
-            if (action === '전동기 소손') return 'MB';
-            if (action === '전동기 베어링 교체') return 'BR';
-            if (action === '전동기 역상') return 'RP';
-            if (action === '리미트 정비 [회로]') return 'LR'; 
-            if (action === 'MOV 정비 [회로]') return 'MV';
-            if (action === '단로기 정비 [회로]') return 'DS';
-            if (action === 'MC 정비 [회로]') return 'MC';
-            if (action === '기계적 고착 [기계]') return 'MS';
+            let str = action ? String(action) : '';
+            str = str.replace(/\s+/g, ''); 
+
+            if (str.includes('케이블')) return 'C';
+            if (str.includes('소손')) return 'MB';      
+            if (str.includes('베어링')) return 'BR';    
+            if (str.includes('역상')) return 'RP';      
+            if (str.includes('리미트')) return 'LR';    
+            if (str.includes('MOV')) return 'MV';       
+            if (str.includes('단로기')) return 'DS';    
+            if (str.includes('MC')) return 'MC';        
+            if (str.includes('고착')) return 'MS';      
+            
             return 'ETC';
         }
         
-        // 전체 작업 현황 계산 로직 (모든 레코드에서 집계)
         function calculateTotalCounts(data) {
             const counts = {};
-            // NOTE를 포함하여 모든 카테고리를 0으로 초기화
             STATUS_CATEGORIES.forEach(cat => counts[cat.code] = 0);
             
             data.forEach(item => {
@@ -369,13 +367,13 @@
                 if (item.device === 'NOTE') {
                     code = 'NOTE';
                 } else {
-                    code = getCategoryByAction(item.action);
+                    code = getCategoryByAction(item.action); 
                 }
                 if (counts[code] !== undefined) counts[code]++;
             });
             return counts;
         }
-
+        
         // 전체 작업 현황 데이터 로드
         function fetchTotalSummary() {
             const loadingEl = document.getElementById('totalSummaryLoading');
@@ -386,34 +384,41 @@
                 return;
             }
             
-            // 로딩 상태 표시
-            gridEl.innerHTML = `<div class="col-span-3 text-center py-10 text-slate-400" id="totalSummaryLoading">
-                <div class="flex items-center justify-center h-full text-slate-300 text-xs">
-                    <div class="animate-spin mr-2 rounded-full border-2 border-slate-300 border-t-slate-500 h-4 w-4"></div>
-                    데이터 로드 중...
-                </div>
-            </div>`;
+            gridEl.innerHTML = `<div class="col-span-3 text-center py-10 text-slate-400">
+                    <div class="flex items-center justify-center h-full text-slate-300 text-xs">
+                        <div class="animate-spin mr-2 rounded-full border-2 border-slate-300 border-t-slate-500 h-4 w-4"></div>
+                        데이터 갱신 중...
+                    </div>
+                </div>`;
+            
+            const separator = GOOGLE_SCRIPT_URL.includes('?') ? '&' : '?';
+            const cacheBuster = `${separator}t=${new Date().getTime()}`;
 
-            // group 파라미터 없이 요청을 보내서 전체 데이터를 가정함
-            fetch(GOOGLE_SCRIPT_URL) 
+            fetch(GOOGLE_SCRIPT_URL + cacheBuster) 
                 .then(res => res.json())
                 .then(data => {
-                    totalDataRecords = data; // 전체 데이터 레코드 저장
-                    totalCounts = calculateTotalCounts(data); // 건수 계산
+                    let finalData = data;
+                    if (!Array.isArray(data)) {
+                        if (data.result && Array.isArray(data.result)) finalData = data.result;
+                        else if (data.data && Array.isArray(data.data)) finalData = data.data;
+                        else finalData = [];
+                    }
+
+                    totalDataRecords = finalData; 
+                    totalCounts = calculateTotalCounts(finalData);
+                    
                     renderTotalDashboard();
                 })
                 .catch(err => {
                     console.error("Total summary fetch failed:", err);
-                    gridEl.innerHTML = `<div class="col-span-3 text-center py-10 text-red-400">총 데이터 로드 실패: 스크립트 URL 확인 필요</div>`;
+                    gridEl.innerHTML = `<div class="col-span-3 text-center py-10 text-red-400">데이터 로드 실패</div>`;
                 });
         }
         
-        // 전체 작업 현황 대시보드 렌더링
         function renderTotalDashboard() {
             const grid = document.getElementById('total-dashboard-grid');
-            grid.innerHTML = ''; // 로딩 메시지 제거
+            grid.innerHTML = ''; 
 
-            // '특이사항 메모 (NOTE)'를 제외한 정비 항목만 필터링
             const repairCategories = STATUS_CATEGORIES.filter(c => c.code !== 'NOTE');
             
             if (repairCategories.length === 0) {
@@ -423,13 +428,12 @@
 
             repairCategories.forEach(cat => {
                 const count = totalCounts[cat.code] || 0;
-                // 카운트가 0보다 크면 red, 아니면 dark 사용
                 const barColor = count > 0 ? 'red' : 'dark'; 
                 
                 const card = document.createElement('div');
                 card.className = `dashboard-card ${barColor} relative`;
-                card.style.cursor = 'pointer'; // 클릭 가능하도록 커서 변경
-                card.onclick = () => openHistoryModal(cat.code, 'TOTAL'); // TOTAL 스코프로 호출
+                card.style.cursor = 'pointer'; 
+                card.onclick = () => openHistoryModal(cat.code, 'TOTAL');
 
                 card.innerHTML = `
                     <div class="absolute inset-0 flex flex-col items-center justify-center p-2">
@@ -444,7 +448,6 @@
                 grid.appendChild(card);
             });
         }
-
 
         const SECTIONS = [
             { 
@@ -472,24 +475,20 @@
             }
         ];
 
-        // Custom Toast/Snackbar Implementation (Replaces alert())
         function showAlert(message) {
             const toast = document.getElementById('toastMessage');
             toast.textContent = message;
-            // Ensure display: block to calculate dimensions before transition
             toast.classList.remove('hidden');
             toast.style.opacity = '1';
-            
             setTimeout(() => {
                 toast.style.opacity = '0';
-                // Wait for the transition to finish before hiding the element completely
                 setTimeout(() => toast.classList.add('hidden'), 300);
             }, 3000);
         }
 
         function initDashboard() {
             document.getElementById('page-unit-selection').classList.add('active');
-            fetchTotalSummary(); // 전체 요약 데이터 로드 시작
+            fetchTotalSummary(); 
         }
 
         function selectUnit(unitName) {
@@ -501,7 +500,6 @@
                 section.groups.forEach((group, idx) => {
                     const btn = document.createElement('div');
                     const barColor = section.theme === 'blue' ? 'blue' : 'red';
-                    // ★★★ 복구된 심플 박스 스타일 ★★★
                     btn.className = `dashboard-card ${barColor}`;
                     btn.innerHTML = `<div class="card-title">${group.name}</div>`;
                     btn.onclick = () => showDetail(section.id, idx);
@@ -516,7 +514,7 @@
             document.getElementById('page-group-selection').classList.remove('active');
             document.getElementById('page-unit-selection').classList.add('active');
             currentUnit = null;
-            fetchTotalSummary(); // 호기 선택 화면으로 돌아올 때 다시 로드
+            fetchTotalSummary(); 
         }
 
         function goGroupSelection() { 
@@ -540,7 +538,6 @@
                 if (el) el.innerHTML = '';
             });
 
-            // 중앙 상태창 초기화
             document.getElementById('centerBox').innerHTML = `
                 <div class="text-[10px] text-center font-bold text-slate-400 border-b border-slate-200 pb-1 mb-1">정비 현황</div>
                 <div id="statusList" class="flex-1 overflow-y-auto flex flex-col gap-1">
@@ -575,11 +572,21 @@
                 if(sl) sl.innerHTML = `<div class="text-center text-xs text-red-400 mt-4">URL 미설정</div>`;
                 return;
             }
-            fetch(`${GOOGLE_SCRIPT_URL}?group=${encodeURIComponent(fullGroupName)}`)
+            
+            const separator = GOOGLE_SCRIPT_URL.includes('?') ? '&' : '?';
+            const url = `${GOOGLE_SCRIPT_URL}${separator}group=${encodeURIComponent(fullGroupName)}&t=${new Date().getTime()}`;
+
+            fetch(url)
                 .then(res => res.json())
                 .then(data => {
-                    currentGroupData = data;
-                    updateCenterStatus(data);
+                    let finalData = data;
+                    if (!Array.isArray(data)) {
+                        if (data.result && Array.isArray(data.result)) finalData = data.result;
+                        else if (data.data && Array.isArray(data.data)) finalData = data.data;
+                        else finalData = [];
+                    }
+                    currentGroupData = finalData;
+                    updateCenterStatus(finalData);
                 })
                 .catch(err => {
                     console.error(err);
@@ -603,7 +610,6 @@
             STATUS_CATEGORIES.forEach((cat, idx) => {
                 const count = counts[cat.code] || 0;
                 const activeClass = count > 0 ? 'active' : '';
-                // 그룹 상세 화면에서는 GROUP 스코프로 호출
                 html += `<div class="status-row ${activeClass}" onclick="openHistoryModal('${cat.code}', 'GROUP')"><span>${idx+1}. ${cat.label}</span><span class="badge ${activeClass}">${count}건</span></div>`;
             });
             html += `</div>`;
@@ -617,7 +623,6 @@
             }
         }
 
-        // scope 파라미터를 추가하여 전체 이력(`TOTAL`) 또는 그룹 이력(`GROUP`)을 구분
         function openHistoryModal(code, scope = 'GROUP') {
             const cat = STATUS_CATEGORIES.find(c => c.code === code);
             document.getElementById('historyTitle').textContent = `[${cat.label}] ${scope === 'TOTAL' ? '전체' : '그룹'} 이력`;
@@ -626,39 +631,30 @@
             const noMsg = document.getElementById('noHistoryMsg');
             tbody.innerHTML = '';
             
-            // 데이터 소스 선택
             const sourceData = scope === 'TOTAL' ? totalDataRecords : currentGroupData;
 
             let filtered;
             if (code === 'NOTE') { 
                 filtered = sourceData.filter(d => d.device === 'NOTE'); 
             } else { 
-                // NOTE가 아닌 경우, 해당 action category에 해당하는 레코드만 필터링
                 filtered = sourceData.filter(d => d.device !== 'NOTE' && getCategoryByAction(d.action) === code); 
             }
             
             if(filtered.length === 0) { noMsg.classList.remove('hidden'); } 
             else {
                 noMsg.classList.add('hidden');
-                
-                // 날짜 기준 내림차순 정렬 (최신순)
                 filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-                // 테이블 헤더 업데이트 (HTML에서 이미 '기기/위치'로 수정됨)
-                
                 filtered.forEach(item => {
                     const dateDisplay = item.date.substring(5); // MM-DD
                     let deviceLocationDisplay;
 
                     if (scope === 'TOTAL') {
-                         // 전체 이력 보기: Unit + Group + Device No.
-                         const unitName = item.group.split(' - ')[0].split(' ')[1]; // UNIT 3 -> 3
-                         const groupName = item.group.split(' - ')[1]; // GROUP 1 (7F)
+                         const unitName = item.group.split(' - ')[0].split(' ')[1]; 
+                         const groupName = item.group.split(' - ')[1]; 
                          const deviceNum = item.device === 'NOTE' ? '메모' : `No.${item.device}`;
 
                          deviceLocationDisplay = `#${unitName}호기 - ${groupName} (${deviceNum})`;
                     } else {
-                        // 그룹 이력 보기: Device No. 또는 메모
                         deviceLocationDisplay = item.device === 'NOTE' ? '메모' : `No.${item.device}`;
                     }
 
@@ -691,11 +687,40 @@
             setTimeout(() => modal.classList.add('hidden'), 200); 
         }
         
+        // Optimistic Update Implementation
+        function optimisticUpdate(group, deviceNo, action) {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const dateStr = `${year}-${month}-${day}`;
+            
+            const newRecord = {
+                date: dateStr,
+                group: group,
+                device: deviceNo,
+                action: action
+            };
+            
+            totalDataRecords.push(newRecord);
+            currentGroupData.push(newRecord);
+            totalCounts = calculateTotalCounts(totalDataRecords);
+            
+            renderTotalDashboard();
+            
+            if (document.getElementById('page-detail').classList.contains('active')) {
+                updateCenterStatus(currentGroupData);
+            }
+        }
+
         function submitAction(action) {
             if(!currentSelection.group) return;
             const loading = document.getElementById('loadingOverlay');
             loading.classList.remove('hidden'); loading.classList.add('flex');
             closeModal('actionModal');
+            
+            optimisticUpdate(currentSelection.group, currentSelection.deviceNo, action);
+            
             fetch(GOOGLE_SCRIPT_URL, {
                 method: "POST", mode: "no-cors",
                 headers: {"Content-Type": "application/json"},
@@ -703,12 +728,14 @@
             }).then(() => { 
                 loading.classList.add('hidden'); loading.classList.remove('flex'); 
                 showAlert(`[${currentUnit} - ${currentSelection.deviceNo} - ${action}] 저장 완료!`); 
-                // 저장 후 그룹 상세와 전체 요약 모두 새로고침
-                fetchGroupData(currentSelection.group);
-                fetchTotalSummary(); 
+                
+                setTimeout(() => {
+                    fetchGroupData(currentSelection.group);
+                    fetchTotalSummary(); 
+                }, 1000); 
             }).catch(() => { 
                 loading.classList.add('hidden'); loading.classList.remove('flex'); 
-                showAlert("전송 실패"); 
+                showAlert("전송 실패 (화면엔 반영됨)"); 
             });
         }
 
@@ -716,8 +743,12 @@
             const memoText = document.getElementById('memoInput').value;
             if(!memoText.trim()) { showAlert("내용을 입력해주세요."); return; }
             if(!currentSelection.group) { showAlert("그룹 정보가 없습니다."); return; }
+            
             const loading = document.getElementById('loadingOverlay');
             loading.classList.remove('hidden'); loading.classList.add('flex');
+            
+            optimisticUpdate(currentSelection.group, 'NOTE', memoText);
+            
             fetch(GOOGLE_SCRIPT_URL, {
                 method: "POST", mode: "no-cors",
                 headers: {"Content-Type": "application/json"},
@@ -726,12 +757,14 @@
                 loading.classList.add('hidden'); loading.classList.remove('flex'); 
                 showAlert("특이사항이 저장되었습니다."); 
                 document.getElementById('memoInput').value = ''; 
-                // 저장 후 그룹 상세와 전체 요약 모두 새로고침
-                fetchGroupData(currentSelection.group); 
-                fetchTotalSummary();
+                
+                setTimeout(() => {
+                    fetchGroupData(currentSelection.group); 
+                    fetchTotalSummary();
+                }, 1000);
             }).catch(() => { 
                 loading.classList.add('hidden'); loading.classList.remove('flex'); 
-                showAlert("저장 실패"); 
+                showAlert("저장 실패 (화면엔 반영됨)"); 
             });
         }
 
